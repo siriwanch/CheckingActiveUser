@@ -8,6 +8,7 @@ var currentActiveUser = 0;
 exports.handler = function (event, context, callback) {
   var redis = require("redis");
   var client = redis.createClient(6380,'gwdev.digitalten.xyz');
+  
 
   client.on("error", function (err) {
     getFromGA();
@@ -96,6 +97,16 @@ exports.handler = function (event, context, callback) {
       default: 
         return flag ? "https://s3-ap-southeast-1.amazonaws.com/waitingpage-setting-dev-connect-scb/support-high-traffic-setting-page.html" :
         "http://bit.ly/2CBmBLl" ;
+    }
+  }
+
+  function getStage(){
+    switch (event.stage) {
+      case 'dev':
+      case 'live':
+      case 'sit':
+      case 'uat':
+      default: 
     }
   }
 };
