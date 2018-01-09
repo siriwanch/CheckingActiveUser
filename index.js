@@ -1,9 +1,11 @@
 var http	= require("http");
 var google = require('googleapis');
 var scbconnect = require('./SCBConnect-6fa1aded75c3.json');
-const VIEW_ID = 'ga:139822590';
+//const VIEW_ID = 'ga:139822590';
 const METRICS_NAME ='rt:activeUsers';
 var currentActiveUser = 0;
+const CACHE = false;
+const VIEW_ID = true;
 
 exports.handler = function (event, context, callback) {
   var redis = require("redis");
@@ -14,7 +16,7 @@ exports.handler = function (event, context, callback) {
     getFromGA();
   });
 
-  client.get("cacheActiveUser",function(error,value){
+  client.get(getStage(CACHE),function(error,value){
 
       if(error || !value){
         getFromGA();
@@ -44,7 +46,7 @@ exports.handler = function (event, context, callback) {
 
         analytics.data.realtime.get({
           'auth': jwtClient,
-          'ids': VIEW_ID,
+          'ids': getStage(VIEW_ID),
           'metrics': METRICS_NAME,
         }, function (err, response) {
           if (err) {
@@ -56,8 +58,9 @@ exports.handler = function (event, context, callback) {
             currentActiveUser = response.rows[0];
           }
 
-          client.set("cacheActiveUser",currentActiveUser);
-          client.expire('cacheActiveUser', CACHE_EXPIRE_TIME);
+          let keyValueForCache = getStage(CACHE);
+          client.set(keyValueForCache,currentActiveUser);
+          client.expire(keyValueForCache, CACHE_EXPIRE_TIME);
           client.quit();
           redirectTo();
       });  
@@ -100,12 +103,16 @@ exports.handler = function (event, context, callback) {
     }
   }
 
-  function getStage(){
+  function getStage(flag){
     switch (event.stage) {
       case 'dev':
+        return flag ? 'ga:139845209' : "cacheActiveUserDEV";
       case 'live':
+        return flag ? 'ga:139822590' : "cacheActiveUserLIVE";
       case 'sit':
+        return flag ? 'ga:139843512' : "cacheActiveUserSIT";
       case 'uat':
+        return flag ? 'ga:139855211' : "cacheActiveUserUAT";
       default: 
     }
   }
