@@ -38,6 +38,9 @@ exports.handler = function (event, context, callback) {
         queryData(analytics);
       });
       function queryData(analytics) {
+        
+        const CACHE_EXPIRE_TIME = parseInt(process.env.cacheExpireTime) || 5;
+
         analytics.data.realtime.get({
           'auth': jwtClient,
           'ids': VIEW_ID,
@@ -53,7 +56,7 @@ exports.handler = function (event, context, callback) {
           }
 
           client.set("cacheActiveUser",currentActiveUser);
-          client.expire('cacheActiveUser', 5);
+          client.expire('cacheActiveUser', CACHE_EXPIRE_TIME);
           client.quit();
           redirectTo();
       });  
