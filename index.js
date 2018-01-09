@@ -77,7 +77,6 @@ exports.handler = function (event, context, callback) {
       location
     });
   }
-
   
   /* UAT version var register = "http://bit.ly/2qzqr6a"  */
   /* PROD version var register = "http://bit.ly/2l9BM7d" */
@@ -114,6 +113,7 @@ exports.handler = function (event, context, callback) {
       case 'uat':
         return flag ? 'ga:139855211' : "cacheActiveUserUAT";
       default: 
+      return flag ? 'ga:139845209' : "cacheActiveUserDEV";
     }
   }
 };
